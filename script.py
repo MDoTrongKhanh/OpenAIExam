@@ -3,14 +3,18 @@ import datetime
 import openai
 import os
 
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # Sử dụng API Key từ môi trường
+
 def generate_question(prompt):
-    """Gọi OpenAI API để tạo câu hỏi theo yêu cầu."""
-    response = openai.ChatCompletion.create(
+    """Gọi OpenAI API để tạo câu hỏi theo cú pháp mới."""
+    response = client.chat.completions.create(
         model="gpt-4",
-        messages=[{"role": "system", "content": "Bạn là một giáo viên tạo đề kiểm tra."},
-                  {"role": "user", "content": prompt}]
+        messages=[
+            {"role": "system", "content": "Bạn là một giáo viên tạo đề kiểm tra."},
+            {"role": "user", "content": prompt}
+        ]
     )
-    return response['choices'][0]['message']['content'].strip()
+    return response.choices[0].message.content.strip()
 
 def create_exam():
     """Tạo đề kiểm tra với 5 câu trắc nghiệm và 3 câu tự luận."""
@@ -36,15 +40,16 @@ def create_exam():
     return exam_content
 
 def save_and_commit_exam():
-    """Lưu đề thi vào file Markdown và commit lên GitHub."""
+    """Lưu đề thi vào file Markdown riêng và commit lên GitHub."""
     exam_text = create_exam()
-    file_path = "exam.md"
+    exam_date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    file_name = f"exam_{exam_date}.md"
     
-    with open(file_path, "w", encoding="utf-8") as f:
+    with open(file_name, "w", encoding="utf-8") as f:
         f.write(exam_text)
     
-    os.system("git add exam.md")
-    os.system(f"git commit -m 'Cập nhật đề kiểm tra ngày {datetime.datetime.now().strftime('%Y-%m-%d')}'")
+    os.system(f"git add {file_name}")
+    os.system(f"git commit -m 'Thêm đề kiểm tra ngày {exam_date}'")
     os.system("git push origin main")
 
 if __name__ == "__main__":
