@@ -8,7 +8,7 @@ client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # Sử dụng API K
 def generate_question(prompt):
     """Gọi OpenAI API để tạo câu hỏi theo cú pháp mới."""
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "Bạn là một giáo viên tạo đề kiểm tra."},
             {"role": "user", "content": prompt}
